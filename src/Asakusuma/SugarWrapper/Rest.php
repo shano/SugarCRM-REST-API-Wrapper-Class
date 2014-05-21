@@ -161,13 +161,31 @@ class Rest
 
         if (isset($this->error['name'])) {
             $error = $this->error;
-            $this->error = FALSE;
+            $this->unset_error();
         } else if (is_bool($this->error)) {
             $error = $this->error;
-            $this->error = FALSE;
+            $this->unset_error();
         }
 
         return $error;
+    }
+
+    /*
+     * Set error
+     */
+    private function set_error($name, $number, $description)
+    {
+        $this->error['name'] = $name;
+        $this->error['number'] = $number;
+        $this->error['description'] = $description;
+    }
+
+    /**
+     * Wipes error
+     */
+    private function unset_error()
+    {
+        $this->error = false;
     }
 
     /**
@@ -257,6 +275,7 @@ class Rest
      */
     private function rest_request($call_name, $call_arguments)
     {
+        $this->unset_error();
         $request = $this->getCurl();
         $request->addData(
             array(
@@ -272,6 +291,9 @@ class Rest
 
         $output = $request->post();
         $response_data = json_decode(html_entity_decode($output['body']), true);
+        if($output['statusCode'] == '500 Internal Server Error') {
+            $this->set_error("Unknown Error", -1, "SugarCRM instanced returned 500 error, please see SugarCRM error logs for issue.");
+        }
 
         return $response_data;
     }
