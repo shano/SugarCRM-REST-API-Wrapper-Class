@@ -266,7 +266,7 @@ class Rest
                 'rest_data' => json_encode($call_arguments)
             )
         );
-        if($call_name == 'set_entry') {
+        if ($call_name == 'set_entry' || $call_name == 'get_entry_list') {
             $request->addHeaders(array('Expect'=>' '));
         }
 
